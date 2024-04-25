@@ -1,0 +1,13 @@
+{
+    "overrides": [
+        {
+            "files": "*.php",
+            "options": {
+                "phpVersion": "8.2",
+                "tabWidth": 4,
+                "singleQuote": true
+            }
+        }
+    ],
+    "plugins": ["@prettier/plugin-php"]
+}
