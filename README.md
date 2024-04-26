@@ -12,7 +12,7 @@ The package supports all Laravel queue and cron features, such as retries, backo
 ## Installation
 
 Requires:
-- Laravel >=10
+- Laravel >= 10
 - PHP >= 8.1
 
 You can install the package via composer:
