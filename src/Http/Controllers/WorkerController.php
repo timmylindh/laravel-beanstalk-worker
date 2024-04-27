@@ -46,8 +46,6 @@ class WorkerController
                 $job,
                 new WorkerOptions(
                     backoff: config('worker.backoff'),
-                    memory: config('worker.memory'),
-                    timeout: config('worker.timeout'),
                     maxTries: config('worker.max_tries'),
                 ),
             );
