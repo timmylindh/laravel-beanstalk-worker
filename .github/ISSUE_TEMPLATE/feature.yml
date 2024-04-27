@@ -6,7 +6,7 @@ body:
   - type: textarea
     id: description
     attributes:
-      label: Feature request?
+      label: Feature request
       description: Please describe the feature you would like to see added to the package.
       placeholder: I would like to see X feature added to the package.
     validations:
