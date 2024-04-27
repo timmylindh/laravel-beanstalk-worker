@@ -93,7 +93,7 @@ In the AWS Elastic Beanstalk worker there are other options you can set.
 ## Handling timeouts
 In the case that a job's excution time reaches the `Visibility timeout` limit the job will automatically be released to the queue by the Beanstalk daemon. If the job times out multiple times and the SQS message hits the `Max retries` limit, the job will be discarded by SQS. 
 
-Thus it is important to set the Beanstalk `Max retries` property to a value greater than the largest `max_tries` you expect for any job. **Note that the job will NOT in any case be processed more times than the `max_tries` or `$tries` property set for the worker/job.**
+Thus it is important to set the Beanstalk `Max retries` property to a value greater than the largest `max_tries` you expect for any job. Note that the job will not in any case be processed more times than the `max_tries` or `$tries` property set for the worker/job.
 
 ## How it works
 
