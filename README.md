@@ -82,7 +82,7 @@ return [
 
 In the AWS Elastic Beanstalk worker there are other options you can set.
 
--   `Max retries`: this will be ignored and overriden by the package `max_tries` properry. Should be set to a greater value than the largest max_tries you expect for any job.
+-   `Max retries`: this will be ignored and overriden by the package `max_tries` property. Should be set to a greater value than the largest max_tries you expect for any job.
 -   `Visibility timeout`: how many seconds to wait for the job to finish before releasing it back onto the queue. This corresponds to the worker retry_after property.
 -   `Inactivity timeout`: should be set same as `Visibility timeout`.
 -   `Max execution time`: should be set same as `Visibility timeout`.
