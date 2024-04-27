@@ -91,6 +91,28 @@ In the AWS Elastic Beanstalk worker there are other options you can set.
 - `Visibility timeout`: this needs to be >= `timeout` that you set in the package, otherwise SQS may release the job back to the queue before the job has finished running.
 - `Error visibility timeout`: this will be ignored and overriden by the package `backoff` property.
 
+## Managing Laravel Queue Jobs in AWS Elastic Beanstalk
+
+Normally, in a standard server environment, Laravel queue workers are set up by executing the command `php artisan queue:work`. However, setting this up in AWS Elastic Beanstalk can be challenging due to the platform's architecture.
+
+### Worker Environments in Elastic Beanstalk
+Elastic Beanstalk supports worker environments that integrate seamlessly with Amazon SQS. These environments include an SQS daemon that continuously polls the queue, fetching and processing jobs by forwarding them to a specified URL endpoint on your application.
+
+### Automatic Message Handling
+ - **Successful Processing**: If the application's endpoint returns an HTTP 2xx status code, the daemon interprets this as a successful job completion and automatically deletes the message from the queue.
+- **Failed Processing**: If the endpoint returns a non-2xx status, the daemon re-queues the message. The job will be retried after the `Error visibility timeout` period and will continue until the `Max retries` limit is reached.
+
+### Challenges
+A significant challenge in this setup is the loss of control over the number of maximum attempts for each job and the delay before a job is retried (backoff strategy).
+
+### Solution
+To address these issues, we utilize a dedicated route `/worker/queue` which is designed to always return an HTTP 2xx status code, regardless of the job's actual outcome. This ensures that the SQS daemon deletes the job after its first dequeue.
+
+- **Error Handling**: If a job fails, we call `report()` to log the exception, ensuring visibility and traceability of job failures.
+- **Job Retries**: We override Laravel's default `release()` method. This allows us to re-queue a failed job manually with an incremented `attempts` count and a custom `delay`, effectively managing the retry mechanism more precisely.
+  
+This approach closely mimics the behavior of running a standard Laravel worker using artisan, while integrating into the Elastic Beanstalk environment. It also manages to keep the costs equivalent to using the Artisan worker since both approaches make a single SQS request to handle job visibility on release.
+
 ## Testing
 
 ```bash
