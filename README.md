@@ -99,7 +99,7 @@ Thus it is important to set the Beanstalk `Max retries` property to a value grea
 
 Normally, in a standard server environment, Laravel queue workers are set up by executing the command `php artisan queue:work`. However, setting this up in AWS Elastic Beanstalk can be challenging due to the platform's architecture.
 
-### Worker Environments in Elastic Beanstalk
+### How it works
 
 Elastic Beanstalk supports worker environments that integrate seamlessly with Amazon SQS. These environments include an SQS daemon that continuously polls the queue, fetching and processing jobs by forwarding them to a specified URL endpoint on your application.
 
