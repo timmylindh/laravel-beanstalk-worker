@@ -111,7 +111,7 @@ To address these issues, we utilize a dedicated route `/worker/queue` which is d
 - **Error Handling**: If a job fails, we call `report()` to log the exception, ensuring visibility and traceability of job failures.
 - **Job Retries**: We override Laravel's default `release()` method. This allows us to re-queue a failed job manually with an incremented `attempts` count and a custom `delay`, effectively managing the retry mechanism more precisely.
   
-This approach closely mimics the behavior of running a standard Laravel worker using artisan, while integrating into the Elastic Beanstalk environment. It also manages to keep the costs equivalent to using the Artisan worker since both approaches make a single SQS request to handle job visibility on release.
+This approach closely mimics the behavior of running a standard Laravel worker using artisan, while integrating into the Elastic Beanstalk environment.
 
 ## Testing
 
