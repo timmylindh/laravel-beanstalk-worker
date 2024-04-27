@@ -84,11 +84,16 @@ The `timeout` worker property is controlled by the Elastic Beanstalk `Visibility
 
 In the AWS Elastic Beanstalk worker there are other options you can set.
 
--   `Max retries`: this will be ignored and overriden by the package `max_tries` property.
+-   `Max retries`: this will be ignored and overriden by the package `max_tries` property unless a timeout occurs. Should be set to a greater value than the largest max_tries you expect for any job.
 -   `Visibility timeout`: how many seconds to wait for the job to finish before releasing it back onto the queue. This corresponds to the worker `retry_after` property.
 -   `Inactivity timeout`: should be set same as `Visibility timeout`.
 -   `Max execution time`: should be set same as `Visibility timeout`.
 -   `Error visibility timeout`: this will be ignored and overriden by the package `backoff` property unless a timeout occurs.
+
+## Handling timeouts
+In the case that a job's excution time reaches the `Visibility timeout` limit the job will automatically be released to the queue by the Beanstalk daemon. If the job times out multiple times and the SQS message hits the `Max retries` limit, the job will be discarded by SQS. 
+
+Thus it is important to set the Beanstalk `Max retries` property to a value greater than the largest `max_tries` you expect for any job. **Note that the job will NOT in any case be processed more times than the `max_tries` or `$tries` property set for the worker/job.**
 
 ## Managing Laravel Queue Jobs in AWS Elastic Beanstalk
 
