@@ -1,9 +1,9 @@
 <?php
-use Illuminate\Queue\Worker;
 use Illuminate\Queue\SqsQueue;
+use Timmylindh\LaravelBeanstalkWorker\SQSWorker;
 
-it('registers the Worker', function () {
-    expect(app(Worker::class))->toBeInstanceOf(Worker::class);
+it('registers the SQSWorker', function () {
+    expect(app(SQSWorker::class))->toBeInstanceOf(SQSWorker::class);
 });
 
 it('registers the SqsQueue', function () {

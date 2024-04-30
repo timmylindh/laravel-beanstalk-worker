@@ -2,10 +2,11 @@
 
 namespace Timmylindh\LaravelBeanstalkWorker;
 
-use Illuminate\Queue\Worker;
+use Illuminate\Contracts\Debug\ExceptionHandler;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Contracts\Queue\Factory as QueueFactory;
 use Illuminate\Queue\SqsQueue;
+use Illuminate\Support\Facades\Facade;
 
 class LaravelBeanstalkWorkerServiceProvider extends ServiceProvider
 {
@@ -17,10 +18,7 @@ class LaravelBeanstalkWorkerServiceProvider extends ServiceProvider
             return;
         }
 
-        $this->app->singleton(
-            Worker::class,
-            fn($app) => $app->make('queue.worker'),
-        );
+        $this->bindWorker();
 
         $this->app->singleton(
             SqsQueue::class,
@@ -40,5 +38,37 @@ class LaravelBeanstalkWorkerServiceProvider extends ServiceProvider
         if (config('worker.is_worker')) {
             $this->loadRoutesFrom(__DIR__ . '/../routes/routes.php');
         }
+    }
+
+    protected function bindWorker()
+    {
+        $this->app->singleton(SQSWorker::class, function ($app) {
+            $resetScope = function () use ($app) {
+                $app['log']->flushSharedContext();
+
+                if (method_exists($app['log'], 'withoutContext')) {
+                    $app['log']->withoutContext();
+                }
+
+                if (method_exists($app['db'], 'getConnections')) {
+                    foreach ($app['db']->getConnections() as $connection) {
+                        $connection->resetTotalQueryDuration();
+                        $connection->allowQueryDurationHandlersToRunAgain();
+                    }
+                }
+
+                $app->forgetScopedInstances();
+
+                Facade::clearResolvedInstances();
+            };
+
+            return new SQSWorker(
+                $app['queue'],
+                $app['events'],
+                $app[ExceptionHandler::class],
+                fn() => $this->app->isDownForMaintenance(),
+                $resetScope,
+            );
+        });
     }
 }
