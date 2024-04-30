@@ -47,6 +47,10 @@ class SQSWorker extends Worker
                 return;
             }
 
+            if (connection_status() !== CONNECTION_TIMEOUT) {
+                return;
+            }
+
             $this->markJobAsFailedIfWillExceedMaxAttempts(
                 $job->getConnectionName(),
                 $job,
