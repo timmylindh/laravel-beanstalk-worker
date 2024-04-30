@@ -64,8 +64,8 @@ class SQSJob extends Job implements JobContract
      */
     public function attempts()
     {
-        return (int) (($this->payload()['attempts'] ?? 0) +
-            $this->getSqsReceiveCount());
+        return ((int) ($this->payload()['attempts'] ?? 0)) +
+            $this->getSqsReceiveCount();
     }
 
     /**
@@ -75,7 +75,7 @@ class SQSJob extends Job implements JobContract
      */
     public function getSqsReceiveCount()
     {
-        return $this->job['receiveCount'];
+        return (int) $this->job['receiveCount'];
     }
 
     /**
