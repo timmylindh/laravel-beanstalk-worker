@@ -6,7 +6,6 @@ use Illuminate\Queue\Events\JobTimedOut;
 use Illuminate\Queue\Worker;
 use Illuminate\Queue\WorkerOptions;
 use Throwable;
-use Timmylindh\LaravelBeanstalkWorker\Exceptions\DidTimeoutAndFailException;
 
 class SQSWorker extends Worker
 {
@@ -22,22 +21,15 @@ class SQSWorker extends Worker
      */
     public function process($connectionName, $job, WorkerOptions $options)
     {
-        if ($job->hasTimedoutAndShouldFail()) {
-            throw new DidTimeoutAndFailException();
-        }
-
         $this->startTimeoutHandler($job, $options);
         parent::process($connectionName, $job, $options);
     }
 
     /**
      * Register the worker timeout handler. This will on timeout reached fail the job.
-     * Due the the built-in Laravel shutdown function throwing an error, the job will be
-     * released back to the queue and retried.
-     *
-     * We will catch the error in the call to the /worker/queue endpoint and either
-     * delete the job there, or retry it depending on failOnTimeout config.
-     *
+     * Due the the built-in Laravel shutdown function throwing an error on timeout
+     * we need to buffer the output and return an empty string to avoid the SQS daemon
+     * requiung the job.
      *
      * @param  \Illuminate\Contracts\Queue\Job|null  $job
      * @param  \Illuminate\Queue\WorkerOptions  $options
@@ -45,26 +37,44 @@ class SQSWorker extends Worker
      */
     protected function startTimeoutHandler($job, WorkerOptions $options)
     {
+        if (!$job) {
+            return;
+        }
+
         set_time_limit(max($this->timeoutForJob($job, $options), 0));
 
-        register_shutdown_function(function () use ($job, $options) {
-            if (!$job) {
-                return;
+        ob_start(function ($str) use ($job, $options) {
+            if (connection_status() !== CONNECTION_TIMEOUT) {
+                return $str;
             }
 
-            if (connection_status() !== CONNECTION_TIMEOUT) {
-                return;
-            }
+            $this->markJobAsFailedIfWillExceedMaxAttempts(
+                $job->getConnectionName(),
+                $job,
+                (int) $options->maxTries,
+                $e = $this->timeoutExceededException($job),
+            );
+
+            $this->markJobAsFailedIfWillExceedMaxExceptions(
+                $job->getConnectionName(),
+                $job,
+                $e,
+            );
 
             $this->markJobAsFailedIfItShouldFailOnTimeout(
                 $job->getConnectionName(),
                 $job,
-                $this->timeoutExceededException($job),
+                $e,
             );
 
+            header('HTTP/1.1 204 No Content');
+
+            report($e);
             $this->events->dispatch(
                 new JobTimedOut($job->getConnectionName(), $job),
             );
+
+            return '';
         });
     }
 }
