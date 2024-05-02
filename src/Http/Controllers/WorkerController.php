@@ -4,12 +4,12 @@ namespace Timmylindh\LaravelBeanstalkWorker\Http\Controllers;
 
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Http\Request;
-use Illuminate\Queue\Worker;
 use Illuminate\Queue\WorkerOptions;
 use Illuminate\Support\Facades\Artisan;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Timmylindh\LaravelBeanstalkWorker\SQSJob;
 use Timmylindh\LaravelBeanstalkWorker\SQSQueueModifier;
+use Timmylindh\LaravelBeanstalkWorker\SQSWorker;
 
 class WorkerController
 {
@@ -27,7 +27,7 @@ class WorkerController
     public function queue(
         Container $container,
         Request $request,
-        Worker $worker,
+        SQSWorker $worker,
         SQSQueueModifier $queueModifier,
     ) {
         $queue = $request->header('X-Aws-Sqsd-Queue');
@@ -47,6 +47,7 @@ class WorkerController
                 new WorkerOptions(
                     backoff: config('worker.backoff'),
                     maxTries: config('worker.max_tries'),
+                    timeout: config('worker.timeout'),
                 ),
             );
         } catch (\Throwable $e) {

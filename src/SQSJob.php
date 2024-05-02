@@ -27,6 +27,8 @@ class SQSJob extends Job implements JobContract
         $this->queue = $queue;
         $this->queueModifier = $queueModifier;
         $this->container = $container;
+        $this->connectionName = 'sqs';
+
         $this->payload = parent::payload();
     }
 
@@ -64,10 +66,28 @@ class SQSJob extends Job implements JobContract
      */
     public function attempts()
     {
-        return (int) max(
-            ($this->payload()['attempts'] ?? 0) + 1,
-            $this->job['receiveCount'],
-        );
+        return ((int) ($this->payload()['attempts'] ?? 0)) +
+            $this->getSqsReceiveCount();
+    }
+
+    /**
+     * Get the number of times the job has been received.
+     *
+     * @return int
+     */
+    public function getSqsReceiveCount()
+    {
+        return (int) $this->job['receiveCount'];
+    }
+
+    /**
+     * Determine if the job should has timedout and should fail.
+     *
+     * @return bool
+     */
+    public function hasTimedoutAndShouldFail()
+    {
+        return $this->getSqsReceiveCount() > 1 && $this->shouldFailOnTimeout();
     }
 
     /**
