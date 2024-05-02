@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Queue\WorkerOptions;
 use Illuminate\Support\Facades\Artisan;
 use Symfony\Component\Console\Output\BufferedOutput;
+use Timmylindh\LaravelBeanstalkWorker\Exceptions\DidTimeoutAndFailException;
 use Timmylindh\LaravelBeanstalkWorker\SQSJob;
 use Timmylindh\LaravelBeanstalkWorker\SQSQueueModifier;
 use Timmylindh\LaravelBeanstalkWorker\SQSWorker;
@@ -40,13 +41,6 @@ class WorkerController
 
         $job = new SQSJob($container, $queueModifier, $queue, $jobData);
 
-        if ($job->hasTimedoutAndShouldFail()) {
-            return response()->json([
-                'status' => 'timeout-should-fail',
-                'id' => $job->getJobId(),
-            ]);
-        }
-
         try {
             $worker->process(
                 $queue,
@@ -57,6 +51,7 @@ class WorkerController
                     timeout: config('worker.timeout'),
                 ),
             );
+        } catch (DidTimeoutAndFailException $e) {
         } catch (\Throwable $e) {
             report($e);
         }

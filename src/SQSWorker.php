@@ -6,6 +6,7 @@ use Illuminate\Queue\Events\JobTimedOut;
 use Illuminate\Queue\Worker;
 use Illuminate\Queue\WorkerOptions;
 use Throwable;
+use Timmylindh\LaravelBeanstalkWorker\Exceptions\DidTimeoutAndFailException;
 
 class SQSWorker extends Worker
 {
@@ -13,7 +14,7 @@ class SQSWorker extends Worker
      * Process the given job from the queue.
      *
      * @param  string  $connectionName
-     * @param  \Illuminate\Contracts\Queue\Job  $job
+     * @param  SQSJob  $job
      * @param  \Illuminate\Queue\WorkerOptions  $options
      * @return void
      *
@@ -21,6 +22,10 @@ class SQSWorker extends Worker
      */
     public function process($connectionName, $job, WorkerOptions $options)
     {
+        if ($job->hasTimedoutAndShouldFail()) {
+            throw new DidTimeoutAndFailException();
+        }
+
         $this->startTimeoutHandler($job, $options);
         parent::process($connectionName, $job, $options);
     }
@@ -51,23 +56,10 @@ class SQSWorker extends Worker
                 return;
             }
 
-            $this->markJobAsFailedIfWillExceedMaxAttempts(
-                $job->getConnectionName(),
-                $job,
-                (int) $options->maxTries,
-                $e = $this->timeoutExceededException($job),
-            );
-
-            $this->markJobAsFailedIfWillExceedMaxExceptions(
-                $job->getConnectionName(),
-                $job,
-                $e,
-            );
-
             $this->markJobAsFailedIfItShouldFailOnTimeout(
                 $job->getConnectionName(),
                 $job,
-                $e,
+                $this->timeoutExceededException($job),
             );
 
             $this->events->dispatch(

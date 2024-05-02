@@ -27,6 +27,8 @@ class SQSJob extends Job implements JobContract
         $this->queue = $queue;
         $this->queueModifier = $queueModifier;
         $this->container = $container;
+        $this->connectionName = 'sqs';
+
         $this->payload = parent::payload();
     }
 

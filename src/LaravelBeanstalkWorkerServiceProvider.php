@@ -4,8 +4,10 @@ namespace Timmylindh\LaravelBeanstalkWorker;
 
 use Illuminate\Contracts\Debug\ExceptionHandler;
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Contracts\Queue\Factory as QueueFactory;
+use Illuminate\Queue\Events\JobFailed;
 use Illuminate\Queue\SqsQueue;
+use Illuminate\Support\Facades\Event;
+use Timmylindh\LaravelBeanstalkWorker\Listeners\LogFailedJob;
 
 class LaravelBeanstalkWorkerServiceProvider extends ServiceProvider
 {
@@ -28,7 +30,7 @@ class LaravelBeanstalkWorkerServiceProvider extends ServiceProvider
 
         $this->app->singleton(
             SqsQueue::class,
-            fn($app) => $app->make(QueueFactory::class)->connection('sqs'),
+            fn($app) => $app['queue']->connection('sqs'),
         );
     }
 
@@ -41,8 +43,11 @@ class LaravelBeanstalkWorkerServiceProvider extends ServiceProvider
             'laravel-beanstalk-worker-config',
         );
 
-        if (config('worker.is_worker')) {
-            $this->loadRoutesFrom(__DIR__ . '/../routes/routes.php');
+        if (!config('worker.is_worker')) {
+            return;
         }
+
+        $this->loadRoutesFrom(__DIR__ . '/../routes/routes.php');
+        Event::listen(JobFailed::class, LogFailedJob::class);
     }
 }
