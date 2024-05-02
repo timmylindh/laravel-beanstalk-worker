@@ -73,6 +73,9 @@ return [
     // The number of seconds to wait before retrying a job that encountered an uncaught exception.
     "backoff" => env("WORKER_BACKOFF", 0),
 
+    // The number of seconds a job may run before timing out.
+    'timeout' => env('WORKER_TIMEOUT', 60),
+
     // The maximum number of times a job may be attempted.
     "max_tries" => env("WORKER_MAX_TRIES", 1),
 ];
@@ -82,17 +85,27 @@ return [
 
 In the AWS Elastic Beanstalk worker there are other options you can set.
 
--   `Max retries`: this will be ignored and overriden by the package `max_tries` property. Should be set to a greater value than the largest max_tries you expect for any job.
--   `Visibility timeout`: how many seconds to wait for the job to finish before releasing it back onto the queue. This corresponds to the worker retry_after property.
+-   `Max retries`: this will be ignored and overriden by the package `max_tries` property. Should be set to a greater value than the largest `max_tries` you expect for any job.
+-   `Visibility timeout`: how many seconds to wait for the job to finish before releasing it back onto the queue. Should be greater than the largest `timeout` you expect for any job.
 -   `Inactivity timeout`: should be set same as `Visibility timeout`.
 -   `Max execution time`: should be set same as `Visibility timeout`.
--   `Error visibility timeout`: this will be ignored and overriden by the package `backoff` property unless a timeout occurs.
+-   `Error visibility timeout`: this will be ignored and overriden by the package `backoff`. When a timeout occurs, this will (instead of timeout) control the number of seconds to wait before retrying the job.
 
 ## Handling timeouts
 
-In the case that a job's excution time reaches the `Visibility timeout` limit the job will automatically be released to the queue by the Beanstalk daemon. If the job times out multiple times and the SQS message hits the `Max retries` limit, the job will be discarded by SQS. 
+To handle timeouts properly you should make sure to set the Elastic Beanstalk properties as follows:
 
-Thus it is important to set the Beanstalk `Max retries` property to a value greater than the largest `max_tries` you expect for any job. Note that the job will not in any case be processed more times than the `max_tries` or `$tries` property set for the worker/job.
+`Max retries` > `max(max_retries|$tries, for any job)`
+
+`Visibility timeout` > `max(timeout|$timeout, for any job)`
+
+`Error visibility timeout` >= 0: this will control the number of seconds to wait before retrying a timed out job.
+
+<hr />
+
+Example: If I expect all my jobs to have maximum of 10 retries and a maximum timeout of 300 seconds I will set `Max retries = 11` and `Visbility timeout = 302`.
+
+See *configuration* section above for more details.
 
 ## How it works
 
