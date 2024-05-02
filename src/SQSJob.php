@@ -81,6 +81,16 @@ class SQSJob extends Job implements JobContract
     }
 
     /**
+     * Determine if the job should has timedout and should fail.
+     *
+     * @return bool
+     */
+    public function hasTimedoutAndShouldFail()
+    {
+        return $this->getSqsReceiveCount() > 1 && $this->shouldFailOnTimeout();
+    }
+
+    /**
      * Get the job identifier.
      *
      * @return string
