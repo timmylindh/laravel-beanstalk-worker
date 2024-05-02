@@ -76,5 +76,11 @@ class SQSWorker extends Worker
 
             return '';
         });
+
+        register_shutdown_function(function () {
+            if (ob_get_level() > 0) {
+                ob_end_flush();
+            }
+        });
     }
 }
