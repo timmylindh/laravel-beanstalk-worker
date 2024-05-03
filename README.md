@@ -7,7 +7,7 @@
 
 Provides functionality to utilize Laravel SQS queues and cron jobs in AWS Elastic Beanstalk worker environments.
 
-The package supports all Laravel queue and cron features, such as retries, backoff, delay, release, max tries, etc.
+The package supports all Laravel queue and cron features, such as retries, backoff, delay, release, max tries, timeout, etc.
 
 ## Installation
 
