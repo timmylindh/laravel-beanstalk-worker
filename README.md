@@ -103,7 +103,7 @@ To handle timeouts properly you should make sure to set the Elastic Beanstalk pr
 
 <hr />
 
-Example: If I expect all my jobs to have maximum of 10 retries and a maximum timeout of 300 seconds I will set `Max retries = 11` and `Visbility timeout = 302`.
+Example: If I expect all my jobs to have maximum of 10 retries and a maximum timeout of 298 seconds I will set `Max retries = 11` and `Visbility timeout = 300`.
 
 See *configuration* section above for more details.
 
