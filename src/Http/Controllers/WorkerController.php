@@ -61,11 +61,9 @@ class WorkerController
     {
         $task = $request->headers->get('X-Aws-Sqsd-Taskname');
 
-        if ($task !== 'cron') {
-            return response()->json(['status' => 'ok']);
+        if ($task === 'cron') {
+            Artisan::call('schedule:run', [], new BufferedOutput());
         }
-
-        Artisan::call('schedule:run', [], new BufferedOutput());
 
         return response()->json(['status' => 'ok']);
     }
