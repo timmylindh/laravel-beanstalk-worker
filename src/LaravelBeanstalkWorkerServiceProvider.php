@@ -43,6 +43,33 @@ class LaravelBeanstalkWorkerServiceProvider extends ServiceProvider
             'laravel-beanstalk-worker-config',
         );
 
+        // Publish Elastic Beanstalk deployment hooks and Nginx snippets
+        $this->publishes(
+            [
+                __DIR__ .
+                '/../resources/eb/.platform/hooks/postdeploy/20-php-fpm-timeout.sh' => base_path(
+                    '.platform/hooks/postdeploy/20-php-fpm-timeout.sh',
+                ),
+                __DIR__ .
+                '/../resources/eb/.platform/hooks/postdeploy/30-nginx-fastcgi-timeout.sh' => base_path(
+                    '.platform/hooks/postdeploy/30-nginx-fastcgi-timeout.sh',
+                ),
+                __DIR__ .
+                '/../resources/eb/.platform/hooks/postdeploy/40-sqsd-timeouts.sh' => base_path(
+                    '.platform/hooks/postdeploy/40-sqsd-timeouts.sh',
+                ),
+                __DIR__ .
+                '/../resources/eb/.platform/hooks/postdeploy/50-sqs-visibility-timeout.sh' => base_path(
+                    '.platform/hooks/postdeploy/50-sqs-visibility-timeout.sh',
+                ),
+                __DIR__ .
+                '/../resources/eb/.platform/nginx/conf.d/fastcgi-timeouts.conf' => base_path(
+                    '.platform/nginx/conf.d/fastcgi-timeouts.conf',
+                ),
+            ],
+            'laravel-beanstalk-worker-deploy',
+        );
+
         if (!config('worker.is_worker')) {
             return;
         }
