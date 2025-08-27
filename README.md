@@ -47,17 +47,14 @@ Recommended. Set one variable and let the hooks align all timeouts automatically
 
 2. Set Worker HTTP path to `/worker/queue` (Configuration → Worker → HTTP path).
 
-3. Set Worker timeouts (Configuration -> Worker):
-
--   `Visibility Timeout = WORKER_TIMEOUT + ~100s`
--   `Inactivity Timeout = WORKER_TIMEOUT + ~30s`
-
 Hooks automatically configured from WORKER_TIMEOUT:
 
 -   PHP: `max_execution_time = WORKER_TIMEOUT`
 -   PHP‑FPM: `request_terminate_timeout = WORKER_TIMEOUT`
 -   Nginx: `fastcgi_read_timeout = WORKER_TIMEOUT + 30s`
 -   SQS: VisibilityTimeout to `WORKER_TIMEOUT + 100s`
+-   SQSD: `Visibility Timeout = WORKER_TIMEOUT + 100s`
+-   SQSD: `Inactivity Timeout = WORKER_TIMEOUT + 30s`
 
 ### Cron (optional)
 
@@ -82,8 +79,8 @@ Use only if you don’t publish the hooks. Configure to avoid premature redelive
 -   Set Worker HTTP path to `/worker/queue`.
 -   Set env `IS_WORKER=true`.
 -   SQS `VisibilityTimeout = WORKER_TIMEOUT + ~100s`
--   EB Worker `VisibilityTimeout = WORKER_TIMEOUT + ~100s`
--   EB Worker `InactivityTimeout = WORKER_TIMEOUT + ~30s`
+-   SQSD `VisibilityTimeout = WORKER_TIMEOUT + ~100s`
+-   SQSD `InactivityTimeout = WORKER_TIMEOUT + ~30s`
 -   Nginx `fastcgi_read_timeout = WORKER_TIMEOUT + ~30s`
 -   PHP‑FPM `request_terminate_timeout = WORKER_TIMEOUT`
 -   PHP `max_execution_time = WORKER_TIMEOUT`

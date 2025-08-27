@@ -55,8 +55,12 @@ class LaravelBeanstalkWorkerServiceProvider extends ServiceProvider
                     '.platform/hooks/postdeploy/30-nginx-fastcgi-timeout.sh',
                 ),
                 __DIR__ .
-                '/../resources/eb/.platform/hooks/postdeploy/40-sqs-visibility-timeout.sh' => base_path(
-                    '.platform/hooks/postdeploy/40-sqs-visibility-timeout.sh',
+                '/../resources/eb/.platform/hooks/postdeploy/40-sqsd-inactivity-timeout.sh' => base_path(
+                    '.platform/hooks/postdeploy/40-sqsd-inactivity-timeout.sh',
+                ),
+                __DIR__ .
+                '/../resources/eb/.platform/hooks/postdeploy/50-sqs-visibility-timeout.sh' => base_path(
+                    '.platform/hooks/postdeploy/50-sqs-visibility-timeout.sh',
                 ),
             ],
             'laravel-beanstalk-worker-deploy',

@@ -44,5 +44,3 @@ if [ -n "$QUEUE_URL" ]; then
 else
     echo "[worker-timeouts] No SQS_QUEUE_URL provided; skipping SQS visibility timeout"
 fi
-
-

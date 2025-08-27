@@ -43,3 +43,5 @@ fi
 
 echo "[worker-timeouts] Reloading Nginx"
 systemctl reload nginx || systemctl restart nginx
+
+
