@@ -37,13 +37,13 @@ chmod +x .platform/hooks/postdeploy/*.sh
 
 ## Automatic setup
 
-Recommended. Set one variable and let the hooks align all timeouts automatically.
+Recommended. Set `WORKER_TIMEOUT` and let the hooks align all timeouts automatically.
 
 1. In Elastic Beanstalk (Worker env), set environment variables:
 
 -   `IS_WORKER=true`
 -   `WORKER_TIMEOUT=<seconds> (e.g., 300, 900, 1000)`
--   `SQS_QUEUE_URL=https://sqs.<region>.amazonaws.com/<account>/<queue>`
+-   `SQS_QUEUE_URL=https://sqs.<region>.amazonaws.com/<account>/<queue>` \(*optional) 
 
 2. Set Worker HTTP path to `/worker/queue` (Configuration → Worker → HTTP path).
 
@@ -55,6 +55,10 @@ Hooks automatically configured from WORKER_TIMEOUT:
 -   SQS: VisibilityTimeout to `WORKER_TIMEOUT + 100s`
 -   SQSD: `Visibility Timeout = WORKER_TIMEOUT + 100s`
 -   SQSD: `Inactivity Timeout = WORKER_TIMEOUT + 30s`
+
+Note that when using the automatic setup, some values that are set through the Elastic Benstalk dashboard will be overwritten on deployment. 
+
+\*optional: If the `SQS_QUEUE_URL` is not provided the `VisibilityTimeout` will have to be set manually on the SQS queue.
 
 ### Cron (optional)
 
