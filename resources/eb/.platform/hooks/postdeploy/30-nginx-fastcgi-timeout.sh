@@ -17,11 +17,22 @@ if [ "${IS_WORKER:-false}" = "true" ]; then
         WORKER_TIMEOUT_SEC=300
     fi
     FASTCGI_TIMEOUT=$((WORKER_TIMEOUT_SEC + 30))
+    CLIENT_TIMEOUT=$((WORKER_TIMEOUT_SEC + 30))
+    PROXY_TIMEOUT=$((WORKER_TIMEOUT_SEC + 30))
 
     # Ensure a runtime conf exists with the desired timeout
     mkdir -p "$(dirname "$RUNTIME_CONF")"
-    echo "fastcgi_read_timeout ${FASTCGI_TIMEOUT}s;" > "$RUNTIME_CONF"
-    echo "[worker-timeouts] Set Nginx fastcgi_read_timeout=${FASTCGI_TIMEOUT}s in $RUNTIME_CONF"
+    cat > "$RUNTIME_CONF" <<CONF
+client_header_timeout   ${CLIENT_TIMEOUT}s;
+client_body_timeout     ${CLIENT_TIMEOUT}s;
+send_timeout            ${CLIENT_TIMEOUT}s;
+proxy_connect_timeout   ${PROXY_TIMEOUT}s;
+proxy_read_timeout      ${PROXY_TIMEOUT}s;
+proxy_send_timeout      ${PROXY_TIMEOUT}s;
+fastcgi_read_timeout    ${FASTCGI_TIMEOUT}s;
+fastcgi_send_timeout    ${FASTCGI_TIMEOUT}s;
+CONF
+    echo "[worker-timeouts] Set Nginx client/proxy/fastcgi timeouts in $RUNTIME_CONF (CLIENT=${CLIENT_TIMEOUT}s, PROXY=${PROXY_TIMEOUT}s, FASTCGI=${FASTCGI_TIMEOUT}s)"
 else
     # Remove the runtime conf if present for non-worker envs
     if [ -f "$RUNTIME_CONF" ]; then
@@ -32,5 +43,3 @@ fi
 
 echo "[worker-timeouts] Reloading Nginx"
 systemctl reload nginx || systemctl restart nginx
-
-
