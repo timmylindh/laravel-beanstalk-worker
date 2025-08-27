@@ -77,8 +77,6 @@ Make the hooks executable:
 chmod +x .platform/hooks/postdeploy/*.sh
 ```
 
-````
-
 ## Usage
 
 ### Enable worker
@@ -147,32 +145,6 @@ If you prefer manual configuration instead of hooks, in the AWS Elastic Beanstal
 -   `Error visibility timeout`: this will be ignored and overriden by the package `backoff`. When a timeout occurs, this will (instead of timeout) control the number of seconds to wait before retrying the job.
 
 So summarized you should set the values as follows: `max_execution_time` ≤ `request_terminate_timeout` < `fastcgi_read_timeout` < `aws-sqsd inactivity_timeout` < `SQS VisibilityTimeout`.
-
-### Fastcgi read timeout
-
-This is how long Nginx will wait without receiving data from PHP‑FPM. To set this value, create a file `.platform/nginx/conf.d/fastcgi-timeouts.conf`
-
-```
-fastcgi_read_timeout 1000s;
-```
-
-### Request terminate timeout
-
-This is a hard wall‑clock limit for a single request; PHP‑FPM kills the worker process once reached. To set this value, create a file `.platform/hooks/postdeploy/20-php-fpm-timeout.sh`
-
-```
-#!/bin/bash
-set -euo pipefail
-
-cat >/etc/php-fpm.d/zz-timeout.conf <<'CONF'
-[www]
-request_terminate_timeout = 1000s
-CONF
-
-systemctl restart php-fpm || systemctl restart php82-php-fpm || true
-```
-
-and make it executable `chmod +x .platform/hooks/postdeploy/20-php-fpm-timeout.sh`.
 
 ## Handling timeouts
 
