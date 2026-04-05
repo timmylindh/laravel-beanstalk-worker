@@ -11,7 +11,7 @@ use Timmylindh\LaravelBeanstalkWorker\Listeners\LogFailedJob;
 
 class LaravelBeanstalkWorkerServiceProvider extends ServiceProvider
 {
-    public function register()
+    public function register(): void
     {
         $this->mergeConfigFrom(__DIR__ . '/../config/worker.php', 'worker');
 
