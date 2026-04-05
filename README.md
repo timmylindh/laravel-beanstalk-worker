@@ -14,7 +14,7 @@ The package supports all Laravel queue and cron features, such as retries, backo
 Requirements:
 
 -   Laravel >= 10
--   PHP >= 8.1
+-   PHP >= 8.2
 
 Install the package:
 
