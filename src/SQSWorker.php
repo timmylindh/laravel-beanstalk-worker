@@ -19,14 +19,16 @@ class SQSWorker extends Worker
      *
      * @throws \Throwable
      */
-    public function process($connectionName, $job, WorkerOptions $options)
+    public function process($connectionName, $job, WorkerOptions $options): void
     {
         if ($job->hasTimedoutAndShouldFail()) {
-            return $this->markJobAsFailedIfItShouldFailOnTimeout(
+            $this->markJobAsFailedIfItShouldFailOnTimeout(
                 $job->getConnectionName(),
                 $job,
                 $this->timeoutExceededException($job),
             );
+
+            return;
         }
 
         $this->startTimeoutHandler($job, $options);

@@ -37,7 +37,7 @@ class SQSJob extends Job implements JobContract
      *
      * @return void
      */
-    public function delete()
+    public function delete(): void
     {
         parent::delete();
     }
@@ -49,7 +49,7 @@ class SQSJob extends Job implements JobContract
      * @param  int   $delay
      * @return void
      */
-    public function release($delay = 0)
+    public function release($delay = 0): void
     {
         parent::release($delay);
 
@@ -64,7 +64,7 @@ class SQSJob extends Job implements JobContract
      *
      * @return int
      */
-    public function attempts()
+    public function attempts(): int
     {
         return ((int) ($this->payload()['attempts'] ?? 0)) +
             $this->getSqsReceiveCount();
@@ -95,7 +95,7 @@ class SQSJob extends Job implements JobContract
      *
      * @return string
      */
-    public function getJobId()
+    public function getJobId(): string
     {
         return $this->job['id'];
     }
@@ -105,7 +105,7 @@ class SQSJob extends Job implements JobContract
      *
      * @return string
      */
-    public function getRawBody()
+    public function getRawBody(): string
     {
         return $this->job['body'];
     }
@@ -115,7 +115,7 @@ class SQSJob extends Job implements JobContract
      *
      * @return array
      */
-    public function payload()
+    public function payload(): array
     {
         return $this->payload;
     }
